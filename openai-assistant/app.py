@@ -6,9 +6,9 @@ from typing import Dict, Any, List
 from openai import AsyncOpenAI
 from openai.types.beta import Thread
 from openai.types.beta.threads import (
-    MessageContentImageFile,
-    MessageContentText,
-    ThreadMessage,
+    ImageFileContentBlock,
+    TextContentBlock,
+    Message,
 )
 from openai.types.beta.threads.runs import RunStep
 from openai.types.beta.threads.runs.tool_calls_step_details import ToolCall
@@ -62,11 +62,11 @@ async def process_files(files: List[Element]):
 
 
 async def process_thread_message(
-    message_references: Dict[str, cl.Message], thread_message: ThreadMessage
+    message_references: Dict[str, cl.Message], thread_message: Message
 ):
     for idx, content_message in enumerate(thread_message.content):
         id = thread_message.id + str(idx)
-        if isinstance(content_message, MessageContentText):
+        if isinstance(content_message, TextContentBlock):
             if id in message_references:
                 msg = message_references[id]
                 msg.content = content_message.text.value
@@ -76,7 +76,7 @@ async def process_thread_message(
                     author=thread_message.role, content=content_message.text.value
                 )
                 await message_references[id].send()
-        elif isinstance(content_message, MessageContentImageFile):
+        elif isinstance(content_message, ImageFileContentBlock):
             image_id = content_message.image_file.file_id
             response = await client.files.with_raw_response.retrieve_content(image_id)
             elements = [
@@ -106,7 +106,7 @@ async def process_tool_call(
     name: str,
     input: Any,
     output: Any,
-    show_input: str = None,
+    show_input: str = "",
 ):
     cl_step = None
     update = False

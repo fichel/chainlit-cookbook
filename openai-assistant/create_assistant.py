@@ -1,7 +1,7 @@
 import json
-from openai import AsyncOpenAI
 import asyncio
 import os
+from openai import AsyncOpenAI
 from dotenv import load_dotenv
 
 
@@ -111,6 +111,7 @@ You can also answer weather questions!
     assistant_dict = load_or_create_json("assistants.json")
     assistant_dict[assistant_name] = assistant.id
     json.dump(assistant_dict, open("assistants.json", "w"))
+
 
 if __name__ == "__main__":
     asyncio.run(create())
